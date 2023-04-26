@@ -1,20 +1,25 @@
 import { connect } from "../../database.js";
 
 class UsersController {
-    static getStart(req, res) {
-      // Lógica para manejar la ruta '/'
-    }
-  
-    static async getUser(req, res) {
-      let sql = 'SELECT * FROM usuario;'
 
-      const conection = await connect();
-      const [rows] = await conection.execute(sql)
-      res.send(rows)
+    static async getUser(req, res) {
+      let sql = 'SELECT * FROM usuarios;'
+
+      if(req.query.usuario_id){
+        sql=  `SELECT * FROM usuarios WHERE usuario_id = ${req.query.usuario_id};`
+      }
+
+      try {
+        const conection = await connect();
+        const [rows] = await conection.execute(sql)
+        res.send(rows);
+      } catch (error) {
+        res.send(error);
+      }
 
 
       // connect()
-      // .then((conection)=> conection.execute(sql))
+      // .then(conection=> conection.execute(sql))
       // .then(([rows])=>{
       //   res.send(rows)
       // })
@@ -22,29 +27,75 @@ class UsersController {
    
     }
   
-    static getUserParams(req, res) {
+    static async getUserParams(req, res) {
       // Lógica para manejar la ruta '/usuario/:name'
+
+      let sql = `SELECT * FROM usuarios WHERE usuario_id = ${req.params.usuario_id};`
+
+      try {
+        const conection = await connect();
+        const [rows] = await conection.execute(sql)
+        res.send(rows);
+      } catch (error) {
+        res.send(error);
+      }
     }
   
     static async postUser(req, res) {
-      const sql = `INSERT INTO usuario 
-      (nombre,apellido) 
-      VALUES (?, ?);`
+      const sql = `INSERT INTO usuarios 
+        (nombre,apellidos) 
+        VALUES (?, ?);`
 
-      const {nombre,apellido} = req.body
-      const params = [nombre,apellido]
+      const {nombre,apellidos} = req.body
+      const params = [nombre,apellidos]
       
-      const conection = await connect();
-      const result = await conection.execute(sql,params)
-      res.send(result);
+      try {
+        const conection = await connect();
+        const result = await conection.execute(sql,params)
+        res.send(result);
+      } catch (error) {
+        res.send(err);
+      }
     }
   
-    static putUser(req, res) {
-      // Lógica para manejar la ruta PUT '/usuario'
+    static async putUser(req, res) {
+      const sql = `UPDATE usuarios 
+        SET nombre = COALESCE(?,nombre), 
+        apellidos = COALESCE(?,apellidos) 
+        WHERE usuario_id = ?;`
+
+      const {nombre,apellidos, usuario_id} = req.body
+
+      const params = [
+        nombre?     nombre:     null,
+        apellidos?  apellidos:  null,
+        usuario_id
+      ]
+      
+      try {
+        const conection = await connect();
+        const result = await conection.execute(sql,params)
+        res.send(result);
+      } catch (error) {
+        res.send(err);
+      }
     }
   
-    static deleteUser(req, res) {
-      // Lógica para manejar la ruta DELETE '/usuario'
+    static async deleteUser(req, res) {
+
+      let sql = 'DELETE FROM usuarios WHERE usuario_id = ?;'
+
+      const {usuario_id} = req.body
+
+      const params = [usuario_id]
+      
+      try {
+        const conection = await connect();
+        const result = await conection.execute(sql,params)
+        res.send(result);
+      } catch (error) {
+        res.send(err);
+      }
     }
   }
   

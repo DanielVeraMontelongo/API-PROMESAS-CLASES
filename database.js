@@ -4,8 +4,8 @@ export  const connect = async () => {
   const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Hh_659654276',
-    database: 'usuario',
+    password: 'codenotch',
+    database: 'usuarios',
   });
 
   return connection;
